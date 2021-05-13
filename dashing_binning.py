@@ -79,7 +79,7 @@ if __name__ == '__main__':
     metadata = metadata.reset_index()
     metadata.strain = metadata.strain.str.replace('/', '_')
 
-    paths_df = pd-read_csv(args.queries, header=None)
+    paths_df = pd.read_csv(args.queries, header=None)
     paths_df.columns = ['paths']
 
     start_date = metadata['date'][0]
@@ -109,7 +109,7 @@ if __name__ == '__main__':
         logger.info('Run Dashing to obtain distance against reference')
         subprocess.run(['dashing dist --containment-index -O {0}.dist -Q {1} '
                         '--full-mash-dist -F {2} -p {3}'.format(prefix, args.queries,
-                                                                args.ref, args.threads)])
+                                                                args.ref, args.threads)], shell=True)
 
     logger.info('Loading distance matrix against reference')
     ref_dist_mat = pd.read_csv('{0}.dist'.format(prefix), sep='\t',
@@ -175,7 +175,7 @@ if __name__ == '__main__':
         else:
             prefix = '{0}/{1}_{2}'.format(tmpdir, start_date.strftime(
                 '%Y-%m-%d'), end_date.strftime('%Y-%m-%d'))
-
+            
             paths_df_subset = paths_df[paths_df['paths'].str.contains(pattern)]
             paths_df_subset.to_csv('{0}_paths.txt'.format(prefix), index=False, header=False)
 
@@ -191,13 +191,10 @@ if __name__ == '__main__':
                                         sep='\t', index_col=0, header=0)
             pair_distances = []
 
-            # Parse distance matrix (might be a better way to do this)
-            for i in ids:
-                for j in ids:
-                    if i == j:
-                        break
-                    pair_distances.append(pair_dist_mat.loc[i, j])
-
+            pair_dist_mat = pair_dist_mat.apply(pd.to_numeric, errors='coerce')
+            pair_distances = pair_dist_mat.to_numpy().flatten()
+            pair_distances = pair_distances[~np.isnan(pair_distances)].tolist()
+            
             logger.info("Current bin has {0} isolates, {1} pairwise "
                         "comparisons".format(len(ids),
                                              len(pair_distances)))
