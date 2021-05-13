@@ -83,6 +83,7 @@ if __name__ == '__main__':
 
     out_dates = []
     out_ref_dist_mean = []
+    out_ref_dist_median = []
     out_ref_min = []
     out_ref_max = []
     out_pair_dist_mean = []
@@ -115,6 +116,7 @@ if __name__ == '__main__':
                     stderr=subprocess.DEVNULL)
 
     logger.info('Loading distance matrix against reference')
+
     ref_dist_mat = pd.read_csv('{0}.dist'.format(prefix), sep='\t',
                                index_col=None, header=0, comment='#')
     ref_dist_mat.columns = ['strain', 'distance']
@@ -129,6 +131,7 @@ if __name__ == '__main__':
 
         if len(ids) == 0:
             out_ref_dist_mean.append(np.nan)
+            out_ref_dist_median.append(np.nan)
             out_ref_max.append(np.nan)
             out_ref_min.append(np.nan)
 
@@ -152,6 +155,7 @@ if __name__ == '__main__':
 
         elif len(ids) == 1:
             out_ref_dist_mean.append(0)
+            out_ref_dist_median.append(0)
             out_ref_max.append(0)
             out_ref_min.append(0)
 
@@ -216,6 +220,7 @@ if __name__ == '__main__':
             sub_ref_dist = ref_dist_mat[
                 ref_dist_mat['strain'].isin(ids)]
             out_ref_dist_mean.append(sub_ref_dist['distance'].mean())
+            out_ref_dist_median.append(sub_ref_dist['distance'].median())
             out_ref_max.append(sub_ref_dist['distance'].max())
             out_ref_min.append(sub_ref_dist['distance'].min())
 
@@ -224,7 +229,7 @@ if __name__ == '__main__':
             #    '{0} - {1}'.format(start_date.strftime('%Y-%m-%d'),
             #                       end_date.strftime('%Y-%m-%d')))
             out_dates.append(format(end_date.strftime('%Y-%m-%d')))
-            out_pair_dist_mean.append(statistics.mean(pair_distances))
+            out_pair_dist_mean.append(np.mean(pair_distances))
             out_pair_min.append(min(pair_distances))
             out_pair_max.append(max(pair_distances))
             out_pair_dist_median.append(np.percentile(pair_distances,
@@ -252,6 +257,7 @@ if __name__ == '__main__':
                            'average_ref_distance': out_ref_dist_mean,
                            'min_ref_distance': out_ref_min,
                            'max_ref_distance': out_ref_max,
+                           'median_ref_distance': out_ref_dist_median,
                            'average_pair_distance': out_pair_dist_mean,
                            'min_pair_distance': out_pair_min,
                            'max_pair_distance': out_pair_max,
