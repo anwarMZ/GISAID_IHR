@@ -202,8 +202,7 @@ if __name__ == '__main__':
                         "comparisons".format(len(ids),
                                              len(pair_distances)))
 
-            sub_ref_dist = ref_dist_mat[
-                ref_dist_mat['strain'].isin(ids)]
+            sub_ref_dist = ref_dist_mat[ref_dist_mat['strain'].str.contains(pattern)]
             out_ref_dist_mean.append(sub_ref_dist['distance'].mean())
             out_ref_dist_median.append(sub_ref_dist['distance'].median())
             out_ref_max.append(sub_ref_dist['distance'].max())
